@@ -1,0 +1,165 @@
+Recent Orders
+{{!-- <script>
+  const form = document.getElementById('login-form')
+  form.addEventListener('submit', login)
+
+  async function login(event){
+    event.preventDefault()
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+
+    const result = await fetch('/login',{
+      method: 'POST',
+      headers:{
+        'Content-Type': 'application/html'
+      },
+      body: JSON.stringify({
+        username,
+        password,
+      })
+    }).then((res) => res.json());
+
+    if(result.status === 'ok' ){
+      {{!-- localStorage.setItem('token', result.data); --}}
+      alert('Success');
+    }else{
+      alert(result.error);
+    }
+  }
+</script> --}}
+
+-=----------------------------------
+register
+
+<script>
+  const form = document.getElementById('res-form')
+  form.addEventListener('submit', RegisterUser)
+
+  async function RegisterUser(event){
+    event.preventDefault()
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    const pswRepeat = document.getElementById('pswRepeat').value;
+    const fullname = document.getElementById('fullname').value;
+    const email = document.getElementById('email').value;
+    const address = document.getElementById('address').value;
+    const phone = document.getElementById('phone').value;
+
+    const result = await fetch('/register',{
+      method: 'POST',
+      headers:{
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        username,
+        password,
+        fullname,
+        email,
+        address,
+        pswRepeat,
+        phone
+      })
+    }).then((res) => res.json())
+
+    if(result.status === 'ok' ){
+      alert('Success');
+    }else{
+      alert(result.error);
+    }
+  }
+</script>
+
+
+
+
+---------------------------------------------
+xregister
+  async xRegister(req,res,next){
+      const { username, password, fullname, email, address, pswRepeat, phone } = req.body;
+      
+      let errors = [];
+  
+      //Check required fields
+      if(!username || !fullname || !email || !address || !password || !pswRepeat || !phone){
+        errors.pust({
+          msg: ' Please fill in all fields'
+        })
+      }
+  
+      if(password !== pswRepeat){
+        errors.push({
+          msg: 'Passwords do not match'
+        })
+      }
+  
+      if(password.length < 6){
+        errors.push({
+          msg:'Password should be at least 6 characters'
+        })
+      }
+  
+      if(errors.length > 0){
+        res.render('register',{
+          errors,
+          username, 
+          password,
+          fullname,
+          email,
+          address,
+          pswRepeat,
+          phone
+        })
+      }
+      else{
+        // validation passed
+        AccountModel.findOne({username: username})
+        .then(user => {
+          if(user){
+            //User exists
+            error.push({msg: 'Username is already register'});
+            res.render('register',{
+              errors,
+              username, 
+              password,
+              fullname,
+              email,
+              address,
+              pswRepeat,
+              phone
+            });
+          }
+          else{
+              const newUser = new AccountModel({
+              username, 
+              password,
+              fullname,
+              email,
+              address,
+              phone
+              });
+            //Hash Password
+            bcrypt.genSalt(10,(err,salt) => 
+            bcrypt.hash(newUser.password,salt,(err,hash) =>{
+              if(err) throw err;
+              //Set password to hashed
+              newUser.password = hash;
+              //Save user
+              newUser.save()
+              .then(user => {
+                req.flash('success_msg', 'You are now registerd a can login');
+                res.redirect('/me/login');
+              })
+              .catch(err => console.log(err))
+            }))
+          }
+        });
+      }
+    }
+
+
+
+
+
+
+
+
